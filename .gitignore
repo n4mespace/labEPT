@@ -128,7 +128,5 @@ dmypy.json
 # Pyre type checker
 .pyre/
 
-# My doc files 
-*.doc
-*.docx
-*.odt
+# Doc logs
+.~lock*
