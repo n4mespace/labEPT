@@ -92,7 +92,9 @@ get.df <- function(X, Y, interaction) {
 
 get.lm <- function(df, interaction = F) {
   ifelse(interaction, 
+         # y = b0 + b1*x1 + b2*x2 + b3*x3 + b4*x1*x2 + b5*x1*x3 + b6*x2*x3 + b7*x1*x2*x3
          return(lm(Y_means ~ X1 * X2 * X3, data = df)), 
+         # y = b0 + b1*x1 + b2*x2 + b3*x3
          return(lm(Y_means ~ X1 + X2 + X3, data = df)))
 }
 
