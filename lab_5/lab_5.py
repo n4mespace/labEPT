@@ -3,10 +3,56 @@ import pandas as pd
 from scipy.stats import t, f
 import random
 import sklearn.linear_model as lm
-from typing import Tuple
+from typing import Tuple, TypeVar, Callable
+from functools import wraps
+from time import time
+
 
 np.set_printoptions(precision=3)
 pd.set_option('display.precision', 3)
+RT = TypeVar('RT')  # generic return type 
+
+
+class FactorExperimentDecorators:
+    '''
+    Helper decorators for FactorExperiment
+
+    '''
+    @classmethod
+    def timeit(cls, func: Callable[..., RT]) -> Callable[..., RT]:
+        '''
+        Measure time for statistical checks
+        
+        Decorators:
+            wraps - [for debugging things]
+        
+        Arguments:
+            func {Callable[..., RT]} -- [function to measure]
+        
+        Returns:
+            {Callable[..., RT]} -- [wrappped function]
+        '''
+
+        @wraps(func)
+        def _wrapper(*args, **kwargs) -> RT:
+            '''
+            Return result of function and prints time of execution
+            
+            Arguments:
+                *args {[type]} -- [*args of function]
+                **kwargs {[type]} -- [*kwargs of function]
+            
+            Returns:
+                [type] -- [result of function]
+            '''
+            start = time()
+            try:
+                return func(*args, **kwargs)
+            finally:
+                end = (time() - start) * 1000
+                print(f'Total execution time: {end:.3f} ms')
+
+        return _wrapper
 
 
 class FactorExperiment:
@@ -187,6 +233,7 @@ class FactorExperiment:
                        (self.f2 - 1) * self.f1)
         return f_crit / (f_crit + self.f2 - 1)
 
+    @FactorExperimentDecorators.timeit
     def cohren_criterion(self) -> bool:
         '''
         Checks Cohren's criterion
@@ -201,6 +248,7 @@ class FactorExperiment:
         print(f'Gp: {Gp:.3f} Gt: {Gt:.3f}')
         return Gp < Gt
         
+    @FactorExperimentDecorators.timeit
     def student_criterion(self) -> None:
         '''
         Checks Student's criterion
@@ -230,6 +278,7 @@ class FactorExperiment:
         print('\nValues for y with significant factors:\n')
         self.check_regression()
 
+    @FactorExperimentDecorators.timeit
     def fisher_criterion(self) -> None:
         '''
         Checks Fisher's criterion
